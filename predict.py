@@ -113,5 +113,5 @@ if __name__ == "__main__":
     generate_predictions(
         model_path="./checkpoints/bert_squad_finetune",
         val_json_path="./data/dev-v1.1.json",
-        output_pred_file="./data/bert_squad_finetune/predictions.json",
+        output_pred_file="./data/predictions.json",
     )
