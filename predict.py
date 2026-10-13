@@ -68,7 +68,7 @@ def generate_predictions(
                 s_logits = start_logits[i]
                 e_logits = end_logits[i]
 
-                # Top-N indices
+                # Top-N indices (For Top-N candidate search, as seen from google-research/bert/run_squad.py)
                 top_start = sorted(range(len(s_logits)), key=lambda k: s_logits[k], reverse=True)[:n_best_size]
                 top_end = sorted(range(len(e_logits)), key=lambda k: e_logits[k], reverse=True)[:n_best_size]
 
