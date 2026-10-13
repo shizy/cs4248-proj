@@ -13,7 +13,7 @@ if __name__ == "__main__":
     doc_stride = 128
     batch_size = 12
     learning_rate = 3e-5
-    epochs = 1
+    epochs = 2
     warmup_ratio = 0.1
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
