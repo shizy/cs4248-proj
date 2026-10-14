@@ -1,4 +1,5 @@
 import torch.nn as nn
+from predictive_heads.head import get_pred_head
 from transformers import (
     BertModel,
     BertPreTrainedModel
@@ -9,7 +10,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         super().__init__(config)
 
         self.bert = BertModel(config, add_pooling_layer=False)
-        self.preds = nn.Linear(config.hidden_size, 2)
+        self.pred_head = get_pred_head(config)
 
     def forward(
         self, 
@@ -27,10 +28,9 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         )
 
         seq_output = outputs.last_hidden_state # shape: (batch_size, seq_len, hidden_size)
-        logits = self.preds(seq_output) # shape: (batch_size, seq_len, 2)
-        start_logits, end_logits = logits.split(1, dim=-1) 
-        start_logits = start_logits.squeeze(-1) # shape: (batch_size, seq_len)
-        end_logits = end_logits.squeeze(-1) # shape: (batch_size, seq_len)
+
+        # get start and end logits from predictive head
+        start_logits, end_logits = self.pred_head(seq_output) # shape: (batch_size, seq_len)
 
         total_loss = None # average of span start loss and span end loss
 

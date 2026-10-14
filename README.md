@@ -44,6 +44,51 @@ python -u train.py \
     "$@"
 ```
 
+Or it can be directly injected to a `sbatch` run with `train_eval.sh`:
+```
+sbatch train_eval.sh --batch_size 32
+```
+
+
+# Adding Custom Predictive Heads
+
+The codebase uses a modular registry with auto-discovery located in the [`predictive_heads/`](./predictive_heads/) directory.
+
+### How It Works
+1. Any Python file placed inside [`predictive_heads/`](./predictive_heads/) is automatically imported by [`predictive_heads/__init__.py`](./predictive_heads/__init__.py).
+2. The `@register_head("<name>")` decorator registers the class into the `PREDICTIVE_HEADS` registry.
+3. The registered head is immediately exposed in [`train.py`](./train.py) under the `--predictive_head` CLI argument and validated in choices.
+4. When saved via `model.save_pretrained()`, the chosen head type is stored inside `config.json` (`config.head_type`), so [`predict.py`](./predict.py) loads the correct head automatically during inference without manual flags.
+
+### Step-by-Step Guide: Adding a New Head
+
+1. Create a new file in `predictive_heads/` (e.g., `predictive_heads/mlp.py`).
+2. Subclass [`PredictiveHead`](./predictive_heads/head.py) and decorate the class with `@register_head("<name>")`:
+
+```python
+import torch.nn as nn
+from .head import PredictiveHead, register_head
+
+@register_head("head_name")
+class NewHead(PredictiveHead):
+    def __init__(self, config)
+        super().__init__(config)
+        ...
+
+    def forward(self, seq_output):
+        ...
+        return start_logits, end_logits
+```
+
+3. Train using your new head with the CLI flag:
+```bash
+python train.py --predictive_head mlp_head
+```
+or in your SLURM submission:
+```bash
+sbatch train_eval.sh --predictive_head mlp_head
+```
+
 # File Reference
 
 | File | Description |
@@ -51,15 +96,18 @@ python -u train.py \
 | [`train.py`](./train.py) | Main fine-tuning script with CLI argument parsing via `argparse`, linear LR warmup scheduling, and checkpoint saving. |
 | [`predict.py`](./predict.py) | Inference script that evaluates fine-tuned checkpoints on validation passages to generate question-answering span predictions. |
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
-| [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) with a classification head for span start/end logits. |
+| [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. |
 | [`dataset.py`](./dataset.py) | SQuAD dataset parser (`parse_squad_json`) and PyTorch `SquadDataset` handling tokenization and sliding window context chunking. |
+| [`predictive_heads/head.py`](./predictive_heads/head.py) | Abstract base class (`PredictiveHead`), `@register_head` decorator, and `get_pred_head` factory. |
+| [`predictive_heads/baseline.py`](./predictive_heads/baseline.py) | Baseline linear predictive head (`baseline_linear_head`). |
+| [`predictive_heads/__init__.py`](./predictive_heads/__init__.py) | Auto-discovery package loader that dynamically registers all head modules in the directory. |
 | [`train_eval.sh`](./train_eval.sh) | Automated SLURM batch job script running end-to-end training, prediction, and evaluation on cluster nodes with unbuffered logging. |
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
 | [`explore_data.py`](./explore_data.py) | Utility script to inspect the nested structure of SQuAD JSON datasets. |
 | [`requirements.txt`](./requirements.txt) | Environment package dependencies and library versions. |
 
 # Todos
-1. Add argparse into the train script to allow for hyperparameter/arch changes via the command line (done for training hyperpramams)
-2. Abstract out the linear layer in the model to make it extensible. Make it modifiable in the training args
+1. Add argparse into the train script to allow for hyperparameter/arch changes via the command line (done for training hyperparams)
+2. Abstract out the linear layer in the model to make it extensible. Make it modifiable in the training args (done via --predictive_head and predictive_heads/)
 4. Support more interesting LR scheduling algorithms. Abstract that out to be modifable in the training args (not really important)
 5. Support more interesting losses. Abstract that out to be modifiable in the training args

@@ -3,6 +3,7 @@ import json
 import os
 import random
 
+from predictive_heads import PREDICTIVE_HEADS
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Fine-tune BERT for Question Answering on SQuAD")
@@ -14,6 +15,9 @@ def parse_args():
                         help="Path to the training data JSON file.")
     parser.add_argument("--output_dir", type=str, default="./checkpoints/bert_squad_finetune",
                         help="Directory to save checkpoint weights, tokenizer, and config.")
+    parser.add_argument("--predictive_head", type=str, default="baseline_linear_head",
+                        choices=list(PREDICTIVE_HEADS.keys()),
+                        help="Prediction head architecture for span extraction.")
 
     # Tokenization & Dataset
     parser.add_argument("--max_seq_len", type=int, default=384,
@@ -65,7 +69,7 @@ def train(args):
     import torch
     from torch.optim import AdamW
     from torch.utils.data import DataLoader
-    from transformers import BertTokenizerFast, get_linear_schedule_with_warmup
+    from transformers import AutoConfig, BertTokenizerFast, get_linear_schedule_with_warmup
     from bert import BertForQuestionAnswering
     from dataset import parse_squad_json, SquadDataset
 
@@ -77,8 +81,13 @@ def train(args):
 
     # Load tokenizer and model
     print(f"Loading tokenizer & model: {args.model_name_or_path}...")
+    config = AutoConfig.from_pretrained(args.model_name_or_path) 
+    config.head_type = args.predictive_head
     tokenizer = BertTokenizerFast.from_pretrained(args.model_name_or_path)
-    model = BertForQuestionAnswering.from_pretrained(args.model_name_or_path).to(device)
+    model = BertForQuestionAnswering.from_pretrained(
+        args.model_name_or_path,
+        config=config
+    ).to(device)
 
     # Load dataset (TODO: move this out to a separate script so we can store to disk and not have to do this once per train)
     print("Loading dataset...")
