@@ -1,5 +1,7 @@
+import argparse
 import collections
 import json
+import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
@@ -25,6 +27,7 @@ def generate_predictions(
     model_path,
     val_json_path,
     output_pred_file="predictions.json",
+    batch_size=16,
     n_best_size=20,
     max_answer_length=30,
 ):
@@ -37,7 +40,7 @@ def generate_predictions(
 
     raw_val = parse_squad_json(val_json_path)
     val_dataset = SquadDataset(raw_val, tokenizer, is_train=False)
-    dataloader = DataLoader(val_dataset, batch_size=16, shuffle=False, collate_fn=collate_fn)
+    dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
     # Accumulate candidate spans per question id
     qid_to_candidates = collections.defaultdict(list)
@@ -103,15 +106,40 @@ def generate_predictions(
             best_candidate = max(candidates, key=lambda x: x["score"])
             final_preds[q_id] = best_candidate["text"]
 
+    out_dir = os.path.dirname(output_pred_file)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
     with open(output_pred_file, "w", encoding="utf-8") as f:
         json.dump(final_preds, f, indent=2)
 
     print(f"Predictions written to {output_pred_file}")
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Generate predictions using fine-tuned BERT model on SQuAD")
+    parser.add_argument("--model_path", type=str, default="./checkpoints/bert_squad_finetune",
+                        help="Path to fine-tuned model checkpoint directory.")
+    parser.add_argument("--val_json_path", type=str, default="./data/dev-v1.1.json",
+                        help="Path to validation/dev SQuAD JSON file.")
+    parser.add_argument("--output_pred_file", type=str, default="./data/predictions.json",
+                        help="Path to write output predictions JSON.")
+    parser.add_argument("--batch_size", type=int, default=16,
+                        help="Batch size for prediction DataLoader.")
+    parser.add_argument("--n_best_size", type=int, default=20,
+                        help="Total number of n-best predictions to generate per question.")
+    parser.add_argument("--max_answer_length", type=int, default=30,
+                        help="Maximum length of an answer that can be generated.")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    args = parse_args()
     generate_predictions(
-        model_path="./checkpoints/bert_squad_finetune",
-        val_json_path="./data/dev-v1.1.json",
-        output_pred_file="./data/predictions.json",
+        model_path=args.model_path,
+        val_json_path=args.val_json_path,
+        output_pred_file=args.output_pred_file,
+        batch_size=args.batch_size,
+        n_best_size=args.n_best_size,
+        max_answer_length=args.max_answer_length,
     )
