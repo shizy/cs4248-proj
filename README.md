@@ -52,7 +52,7 @@ sbatch train_eval.sh --batch_size 32
 
 # Adding Custom Predictive Heads
 
-The codebase uses a modular registry with auto-discovery located in the [`predictive_heads/`](./predictive_heads/) directory.
+The codebase uses a modular registry with auto-discovery located in the [`predictive_heads/`](./predictive_heads/) directory. For an architectural breakdown, mathematical formulations, and research papers, see [**`HEADS.md`**](./HEADS.md).
 
 ### How It Works
 1. Any Python file placed inside [`predictive_heads/`](./predictive_heads/) is automatically imported by [`predictive_heads/__init__.py`](./predictive_heads/__init__.py).
@@ -94,12 +94,17 @@ sbatch train_eval.sh --predictive_head mlp_head
 | File | Description |
 | :--- | :--- |
 | [`train.py`](./train.py) | Main fine-tuning script with CLI argument parsing via `argparse`, linear LR warmup scheduling, and checkpoint saving. |
+| [`HEADS.md`](./HEADS.md) | Architectural documentation, mathematical formulations, and arXiv research papers for all predictive heads. |
 | [`predict.py`](./predict.py) | Inference script that evaluates fine-tuned checkpoints on validation passages to generate question-answering span predictions. |
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
 | [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. |
 | [`dataset.py`](./dataset.py) | SQuAD dataset parser (`parse_squad_json`) and PyTorch `SquadDataset` handling tokenization and sliding window context chunking. |
 | [`predictive_heads/head.py`](./predictive_heads/head.py) | Abstract base class (`PredictiveHead`), `@register_head` decorator, and `get_pred_head` factory. |
 | [`predictive_heads/baseline.py`](./predictive_heads/baseline.py) | Baseline linear predictive head (`baseline_linear_head`). |
+| [`predictive_heads/multi_sample_dropout.py`](./predictive_heads/multi_sample_dropout.py) | Multi-sample dropout head for accelerated convergence and variance reduction (`multi_sample_dropout_head`). |
+| [`predictive_heads/residual_mlp.py`](./predictive_heads/residual_mlp.py) | Deep residual MLP head with LayerNorm and GELU non-linearity (`residual_mlp_head`). |
+| [`predictive_heads/conv_boundary.py`](./predictive_heads/conv_boundary.py) | 1D Convolutional local n-gram boundary head (`conv_boundary_head`). |
+| [`predictive_heads/conditioned_span.py`](./predictive_heads/conditioned_span.py) | Autoregressive span head conditioning end prediction on start token representation (`conditioned_span_head`). |
 | [`predictive_heads/__init__.py`](./predictive_heads/__init__.py) | Auto-discovery package loader that dynamically registers all head modules in the directory. |
 | [`train_eval.sh`](./train_eval.sh) | Automated SLURM batch job script running end-to-end training, prediction, and evaluation on cluster nodes with unbuffered logging. |
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
