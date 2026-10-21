@@ -31,7 +31,9 @@ def parse_args():
     parser.add_argument("-b", "--batch_size", type=int, default=12,
                         help="Batch size per device for training.")
     parser.add_argument("-lr", "--learning_rate", type=float, default=3e-5,
-                        help="Initial learning rate for AdamW.")
+                        help="Initial learning rate for AdamW (BERT backbone).")
+    parser.add_argument("--head_learning_rate", type=float, default=None,
+                        help="Initial learning rate for predictive head. If not set, defaults to --learning_rate.")
     parser.add_argument("--adam_epsilon", type=float, default=1e-8,
                         help="Epsilon for AdamW optimizer.")
     parser.add_argument("--warmup_ratio", type=float, default=0.1,
@@ -103,7 +105,14 @@ def train(args):
 
     # Set optimizer and LR scheduler
     print("Initialising optimizer and scheduler...")
-    optimizer = AdamW(model.parameters(), lr=args.learning_rate, eps=args.adam_epsilon)
+    head_lr = args.head_learning_rate if args.head_learning_rate is not None else args.learning_rate
+    print(f"Learning rates -> Backbone: {args.learning_rate} | Head: {head_lr}")
+
+    optimizer_grouped_parameters = [
+        {"params": [p for p in model.bert.parameters() if p.requires_grad], "lr": args.learning_rate},
+        {"params": [p for p in model.pred_head.parameters() if p.requires_grad], "lr": head_lr},
+    ]
+    optimizer = AdamW(optimizer_grouped_parameters, eps=args.adam_epsilon)
     total_steps = len(train_dataloader) * args.epochs if args.max_steps <= 0 else args.max_steps
     warmup_steps = int(total_steps * args.warmup_ratio)
     scheduler = get_linear_schedule_with_warmup(
