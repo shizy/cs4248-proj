@@ -105,6 +105,8 @@ sbatch train_eval.sh --predictive_head mlp_head
 | [`predictive_heads/residual_mlp.py`](./predictive_heads/residual_mlp.py) | Deep residual MLP head with LayerNorm and GELU non-linearity (`residual_mlp_head`). |
 | [`predictive_heads/conv_boundary.py`](./predictive_heads/conv_boundary.py) | 1D Convolutional local n-gram boundary head (`conv_boundary_head`). |
 | [`predictive_heads/conditioned_span.py`](./predictive_heads/conditioned_span.py) | Autoregressive span head conditioning end prediction on start token representation (`conditioned_span_head`). |
+| [`predictive_heads/depthwise_conv.py`](./predictive_heads/depthwise_conv.py) | Depthwise 1D conv with ReZero gating for safe local boundary filtering (`depthwise_conv_head`). |
+| [`predictive_heads/logit_boundary.py`](./predictive_heads/logit_boundary.py) | Differentiable logit-space boundary smoothing filter (`logit_boundary_head`). |
 | [`predictive_heads/__init__.py`](./predictive_heads/__init__.py) | Auto-discovery package loader that dynamically registers all head modules in the directory. |
 | [`train_eval.sh`](./train_eval.sh) | Automated SLURM batch job script running end-to-end training, prediction, and evaluation on cluster nodes with unbuffered logging. |
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
