@@ -1,0 +1,13 @@
+{
+  "experiment_name": "residual_mlp_uniform_lr",
+  "job_id": "983158",
+  "checkpoint_dir": "checkpoints/983158",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "residual_mlp_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 3e-05,
+  "exact_match": 81.29,
+  "f1_score": 88.36,
+  "status": "Converged"
+}

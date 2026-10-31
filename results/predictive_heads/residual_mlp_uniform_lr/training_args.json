@@ -1,0 +1,18 @@
+{
+  "model_name_or_path": "bert-base-uncased",
+  "train_json_path": "./data/train-v1.1.json",
+  "output_dir": "checkpoints/983158",
+  "predictive_head": "residual_mlp_head",
+  "max_seq_len": 384,
+  "doc_stride": 128,
+  "epochs": 2,
+  "batch_size": 12,
+  "learning_rate": 3e-05,
+  "adam_epsilon": 1e-08,
+  "warmup_ratio": 0.1,
+  "max_grad_norm": 1.0,
+  "seed": 42,
+  "logging_steps": 500,
+  "max_steps": -1,
+  "no_cuda": false
+}

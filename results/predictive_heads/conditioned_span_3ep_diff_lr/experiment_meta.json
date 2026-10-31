@@ -1,0 +1,13 @@
+{
+  "experiment_name": "conditioned_span_3ep_diff_lr",
+  "job_id": "989012",
+  "checkpoint_dir": "checkpoints/989012",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "conditioned_span_head",
+  "epochs": 3,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 0.00015,
+  "exact_match": 81.07,
+  "f1_score": 88.67,
+  "status": "Converged"
+}

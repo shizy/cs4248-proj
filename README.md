@@ -112,6 +112,7 @@ sbatch train_eval.sh --predictive_head mlp_head
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
 | [`explore_data.py`](./explore_data.py) | Utility script to inspect the nested structure of SQuAD JSON datasets. |
 | [`requirements.txt`](./requirements.txt) | Environment package dependencies and library versions. |
+| [`results/predictive_heads/`](./results/predictive_heads/README.md.txt) | Various results for predictive head experiments. |
 
 # Todos
 1. Add argparse into the train script to allow for hyperparameter/arch changes via the command line (done for training hyperparams)

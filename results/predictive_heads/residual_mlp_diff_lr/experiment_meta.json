@@ -1,0 +1,13 @@
+{
+  "experiment_name": "residual_mlp_diff_lr",
+  "job_id": "989015",
+  "checkpoint_dir": "checkpoints/989015",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "residual_mlp_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 0.0001,
+  "exact_match": 81.26,
+  "f1_score": 88.59,
+  "status": "Converged"
+}
