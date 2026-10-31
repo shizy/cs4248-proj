@@ -4,6 +4,7 @@ import os
 import random
 
 from predictive_heads import PREDICTIVE_HEADS
+from hidden_pooling import HIDDEN_POOLERS
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Fine-tune BERT for Question Answering on SQuAD")
@@ -18,6 +19,9 @@ def parse_args():
     parser.add_argument("--predictive_head", type=str, default="baseline_linear_head",
                         choices=list(PREDICTIVE_HEADS.keys()),
                         help="Prediction head architecture for span extraction.")
+    parser.add_argument("--pooler_type", type=str, default="last",
+                        choices=list(HIDDEN_POOLERS.keys()),
+                        help="Pooling method used to accumulate the hidden layers of the model.")
 
     # Tokenization & Dataset
     parser.add_argument("--max_seq_len", type=int, default=384,
@@ -66,6 +70,29 @@ def set_seed(seed: int):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
+def save_training_plots(history, output_dir, max_grad_norm):
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+    os.makedirs(output_dir, exist_ok=True)
+    with open(os.path.join(output_dir, "training_metrics.json"), "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=4)
+
+    for metric, ylabel, title in (
+        ("loss", "Training loss", "Training loss"),
+        ("grad_norm", "Gradient L2 norm", "Gradient norm"),
+    ):
+        fig = Figure(figsize=(10, 5), layout="constrained")
+        FigureCanvasAgg(fig)
+        ax = fig.subplots()
+        ax.plot(history["step"], history[metric], linewidth=0.8, label=ylabel)
+        if metric == "grad_norm" and max_grad_norm > 0:
+            ax.axhline(max_grad_norm, color="tab:red", linestyle="--", label=f"Clipping threshold ({max_grad_norm:g})")
+        ax.set(xlabel="Optimizer step", ylabel=ylabel, title=title)
+        ax.grid(alpha=0.25)
+        ax.legend()
+        fig.savefig(os.path.join(output_dir, f"{metric}.png"), dpi=150)
+
 
 def train(args):
     import torch
@@ -85,6 +112,7 @@ def train(args):
     print(f"Loading tokenizer & model: {args.model_name_or_path}...")
     config = AutoConfig.from_pretrained(args.model_name_or_path) 
     config.head_type = args.predictive_head
+    config.pooler_type = args.pooler_type
     tokenizer = BertTokenizerFast.from_pretrained(args.model_name_or_path)
     model = BertForQuestionAnswering.from_pretrained(
         args.model_name_or_path,
@@ -123,6 +151,7 @@ def train(args):
     print(f"Starting training for {args.epochs} epoch(s) ({total_steps} total steps)...")
     model.train()
     global_step = 0
+    history = {"step": [], "loss": [], "grad_norm": []}
 
     for epoch in range(args.epochs):
         epoch_loss = 0.0
@@ -144,15 +173,21 @@ def train(args):
             )
 
             loss = outputs["loss"]
-            epoch_loss += loss.item()
+            loss_value = loss.item()
+            epoch_loss += loss_value
 
             loss.backward()
-            if args.max_grad_norm > 0:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=args.max_grad_norm)
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                model.parameters(),
+                max_norm=args.max_grad_norm if args.max_grad_norm > 0 else float("inf")
+            )
 
             optimizer.step()
             scheduler.step()
             global_step += 1
+            history["step"].append(global_step)
+            history["loss"].append(loss_value)
+            history["grad_norm"].append(grad_norm.item())
 
             if (step + 1) % args.logging_steps == 0:
                 avg_loss = epoch_loss / (step + 1)
@@ -174,7 +209,8 @@ def train(args):
     with open(args_file, "w", encoding="utf-8") as f:
         json.dump(vars(args), f, indent=2)
 
-    print(f"Training complete. Model and config saved to {args.output_dir}")
+    save_training_plots(history, args.output_dir, args.max_grad_norm)
+    print(f"Training complete. Model, config, and graphs saved to {args.output_dir}")
 
 
 def main():

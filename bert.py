@@ -1,5 +1,6 @@
 import torch.nn as nn
 from predictive_heads.head import get_pred_head
+from hidden_pooling.pooler import get_hidden_pooler
 from transformers import (
     BertModel,
     BertPreTrainedModel
@@ -10,6 +11,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         super().__init__(config)
 
         self.bert = BertModel(config, add_pooling_layer=False)
+        self.hidden_pooler = get_hidden_pooler(config)
         self.pred_head = get_pred_head(config)
 
     def forward(
@@ -24,13 +26,15 @@ class BertForQuestionAnswering(BertPreTrainedModel):
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
+            output_hidden_states=True,
             return_dict=True
         )
 
-        seq_output = outputs.last_hidden_state # shape: (batch_size, seq_len, hidden_size)
+        full_seq_output = outputs.hidden_states # shape: tuple[num_layers, (batch_size, seq_len, hidden_size)]
+        pooled_seq_output = self.hidden_pooler(full_seq_output, attention_mask) # shape: (batch_size, seq_len, hidden_size)
 
         # get start and end logits from predictive head
-        start_logits, end_logits = self.pred_head(seq_output) # shape: (batch_size, seq_len)
+        start_logits, end_logits = self.pred_head(pooled_seq_output) # shape: (batch_size, seq_len)
 
         total_loss = None # average of span start loss and span end loss
 
