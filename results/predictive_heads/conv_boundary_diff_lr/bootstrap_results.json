@@ -1,0 +1,38 @@
+{
+  "bootstrap_config": {
+    "test_predictions_file": "predictions.json",
+    "reference_predictions_file": "predictions.json",
+    "test_predictions_path": "c:\\Users\\simon\\Documents\\cs4248-proj\\results\\predictive_heads\\conv_boundary_diff_lr\\predictions.json",
+    "reference_predictions_path": "c:\\Users\\simon\\Documents\\cs4248-proj\\results\\predictive_heads\\baseline_linear\\predictions.json",
+    "dataset_size": 10570,
+    "sample_size": 10570,
+    "num_samples": 1000,
+    "seed": 42
+  },
+  "observed_metrics": {
+    "test_model": {
+      "exact_match": 0.6623,
+      "f1_score": 1.9178
+    },
+    "reference_model": {
+      "exact_match": 81.1637,
+      "f1_score": 88.5805
+    },
+    "observed_difference": {
+      "delta_exact_match": -80.5014,
+      "delta_f1_score": -86.6627
+    }
+  },
+  "p_values": {
+    "exact_match": {
+      "p_value": 1.0,
+      "num_sig": 1000,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 1.0,
+      "num_sig": 1000,
+      "total": 1000
+    }
+  }
+}

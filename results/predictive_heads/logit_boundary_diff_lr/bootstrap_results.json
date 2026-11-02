@@ -1,0 +1,38 @@
+{
+  "bootstrap_config": {
+    "test_predictions_file": "predictions.json",
+    "reference_predictions_file": "predictions.json",
+    "test_predictions_path": "c:\\Users\\simon\\Documents\\cs4248-proj\\results\\predictive_heads\\logit_boundary_diff_lr\\predictions.json",
+    "reference_predictions_path": "c:\\Users\\simon\\Documents\\cs4248-proj\\results\\predictive_heads\\baseline_linear\\predictions.json",
+    "dataset_size": 10570,
+    "sample_size": 10570,
+    "num_samples": 1000,
+    "seed": 42
+  },
+  "observed_metrics": {
+    "test_model": {
+      "exact_match": 81.0596,
+      "f1_score": 88.552
+    },
+    "reference_model": {
+      "exact_match": 81.1637,
+      "f1_score": 88.5805
+    },
+    "observed_difference": {
+      "delta_exact_match": -0.1041,
+      "delta_f1_score": -0.0285
+    }
+  },
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.701,
+      "num_sig": 701,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.591,
+      "num_sig": 591,
+      "total": 1000
+    }
+  }
+}
