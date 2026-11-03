@@ -49,6 +49,7 @@ class SquadDataset(Dataset):
             stride=doc_stride,
             return_overflowing_tokens=True,
             return_offsets_mapping=True,
+            return_token_type_ids=True, # RoBERTa's tokenizer omits these by default; they are all zeros there
             padding="max_length",
             return_tensors="pt",
         )

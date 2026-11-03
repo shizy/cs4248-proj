@@ -5,8 +5,8 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from transformers import BertTokenizerFast
-from bert import BertForQuestionAnswering
+from transformers import AutoConfig, AutoTokenizer
+from bert import get_qa_model_class
 from dataset import parse_squad_json, SquadDataset
 
 def collate_fn(batch):
@@ -34,8 +34,9 @@ def generate_predictions(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Loading checkpoint from: {model_path} onto {device}")
 
-    tokenizer = BertTokenizerFast.from_pretrained(model_path)
-    model = BertForQuestionAnswering.from_pretrained(model_path).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    config = AutoConfig.from_pretrained(model_path)
+    model = get_qa_model_class(config).from_pretrained(model_path, config=config).to(device)
     model.eval()
 
     raw_val = parse_squad_json(val_json_path)
