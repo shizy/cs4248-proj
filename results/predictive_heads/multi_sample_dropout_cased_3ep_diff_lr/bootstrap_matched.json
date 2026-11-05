@@ -1,0 +1,38 @@
+{
+  "bootstrap_config": {
+    "test_predictions_file": "predictions.json",
+    "reference_predictions_file": "predictions.json",
+    "test_predictions_path": "/tmp/claude-0/-home-claude/054e7832-2f3f-5e28-b538-ecf0484b0782/scratchpad/repo/cs4248-proj/results/predictive_heads/multi_sample_dropout_cased_3ep_diff_lr/predictions.json",
+    "reference_predictions_path": "/tmp/claude-0/-home-claude/054e7832-2f3f-5e28-b538-ecf0484b0782/scratchpad/repo/cs4248-proj/results/predictive_heads/baseline_linear_cased_3ep/predictions.json",
+    "dataset_size": 10570,
+    "sample_size": 10570,
+    "num_samples": 1000,
+    "seed": 42
+  },
+  "observed_metrics": {
+    "test_model": {
+      "exact_match": 81.5799,
+      "f1_score": 88.96
+    },
+    "reference_model": {
+      "exact_match": 81.3056,
+      "f1_score": 88.7402
+    },
+    "observed_difference": {
+      "delta_exact_match": 0.2744,
+      "delta_f1_score": 0.2198
+    }
+  },
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.192,
+      "num_sig": 192,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.133,
+      "num_sig": 133,
+      "total": 1000
+    }
+  }
+}
