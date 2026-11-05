@@ -1,0 +1,38 @@
+{
+  "bootstrap_config": {
+    "test_predictions_file": "predictions.json",
+    "reference_predictions_file": "predictions.json",
+    "test_predictions_path": "/tmp/claude-0/-home-claude/054e7832-2f3f-5e28-b538-ecf0484b0782/scratchpad/repo/cs4248-proj/results/predictive_heads/logit_boundary_3ep_diff_lr/predictions.json",
+    "reference_predictions_path": "/tmp/claude-0/-home-claude/054e7832-2f3f-5e28-b538-ecf0484b0782/scratchpad/repo/cs4248-proj/results/predictive_heads/baseline_linear_3ep/predictions.json",
+    "dataset_size": 10570,
+    "sample_size": 10570,
+    "num_samples": 1000,
+    "seed": 42
+  },
+  "observed_metrics": {
+    "test_model": {
+      "exact_match": 80.8988,
+      "f1_score": 88.4796
+    },
+    "reference_model": {
+      "exact_match": 81.0501,
+      "f1_score": 88.6298
+    },
+    "observed_difference": {
+      "delta_exact_match": -0.1514,
+      "delta_f1_score": -0.1503
+    }
+  },
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.748,
+      "num_sig": 748,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.827,
+      "num_sig": 827,
+      "total": 1000
+    }
+  }
+}
