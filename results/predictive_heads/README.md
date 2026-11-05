@@ -19,6 +19,90 @@ Prediction:
 }
 ```
 
+### Baseline Linear Head - 3 Epochs
+Prediction:
+```json
+{
+  "exact": 81.05014191106906,
+  "f1": 88.62980129145953,
+  "total": 10570,
+  "HasAns_exact": 81.05014191106906,
+  "HasAns_f1": 88.62980129145953,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.7,
+      "num_sig": 700,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.401,
+      "num_sig": 401,
+      "total": 1000
+    }
+  }
+```
+
+### Baseline Linear Head - Cased Backbone, 2 Epochs
+Prediction:
+```json
+{
+  "exact": 81.77861873226112,
+  "f1": 88.81592696101092,
+  "total": 10570,
+  "HasAns_exact": 81.77861873226112,
+  "HasAns_f1": 88.81592696101092,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.043,
+      "num_sig": 43,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.187,
+      "num_sig": 187,
+      "total": 1000
+    }
+  }
+```
+
+### Baseline Linear Head - Cased Backbone, 3 Epochs
+Prediction:
+```json
+{
+  "exact": 81.30558183538317,
+  "f1": 88.74024067472013,
+  "total": 10570,
+  "HasAns_exact": 81.30558183538317,
+  "HasAns_f1": 88.74024067472013,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.364,
+      "num_sig": 364,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.276,
+      "num_sig": 276,
+      "total": 1000
+    }
+  }
+```
+
 ---
 
 ## Without Differentiated Learning Rate
@@ -130,6 +214,62 @@ Bootstrap test:
     "f1_score": {
       "p_value": 0.892,
       "num_sig": 892,
+      "total": 1000
+    }
+  }
+```
+
+### Multi-Sample Dropout Head - 3 Epochs
+Prediction:
+```json
+{
+  "exact": 80.96499526963103,
+  "f1": 88.39723274603118,
+  "total": 10570,
+  "HasAns_exact": 80.96499526963103,
+  "HasAns_f1": 88.39723274603118,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.799,
+      "num_sig": 799,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.846,
+      "num_sig": 846,
+      "total": 1000
+    }
+  }
+```
+
+### Logit-Space Boundary Convolution Head
+Prediction:
+```json
+{
+  "exact": 81.13528855250709,
+  "f1": 88.51995391162374,
+  "total": 10570,
+  "HasAns_exact": 81.13528855250709,
+  "HasAns_f1": 88.51995391162374,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.593,
+      "num_sig": 593,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.688,
+      "num_sig": 688,
       "total": 1000
     }
   }
@@ -330,6 +470,146 @@ Bootstrap test:
     "f1_score": {
       "p_value": 0.591,
       "num_sig": 591,
+      "total": 1000
+    }
+  }
+```
+
+### Multi-Sample Dropout Head with Differentiated LR
+Prediction:
+```json
+{
+  "exact": 81.2488174077578,
+  "f1": 88.46088163964016,
+  "total": 10570,
+  "HasAns_exact": 81.2488174077578,
+  "HasAns_f1": 88.46088163964016,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.388,
+      "num_sig": 388,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.763,
+      "num_sig": 763,
+      "total": 1000
+    }
+  }
+```
+
+### Multi-Sample Dropout Head - Cased Backbone, 3 Epochs
+Prediction:
+```json
+{
+  "exact": 81.57994323557237,
+  "f1": 88.96003906504971,
+  "total": 10570,
+  "HasAns_exact": 81.57994323557237,
+  "HasAns_f1": 88.96003906504971,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.143,
+      "num_sig": 143,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.071,
+      "num_sig": 71,
+      "total": 1000
+    }
+  }
+```
+
+### Residual MLP Head - Cased Backbone, 3 Epochs
+Prediction:
+```json
+{
+  "exact": 80.9271523178808,
+  "f1": 88.68716287698824,
+  "total": 10570,
+  "HasAns_exact": 80.9271523178808,
+  "HasAns_f1": 88.68716287698824,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.769,
+      "num_sig": 769,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.345,
+      "num_sig": 345,
+      "total": 1000
+    }
+  }
+```
+
+### Logit-Space Boundary Convolution Head - 3 Epochs
+Prediction:
+```json
+{
+  "exact": 80.89877010406812,
+  "f1": 88.47955054178212,
+  "total": 10570,
+  "HasAns_exact": 80.89877010406812,
+  "HasAns_f1": 88.47955054178212,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.855,
+      "num_sig": 855,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.721,
+      "num_sig": 721,
+      "total": 1000
+    }
+  }
+```
+
+### Logit-Space Boundary Convolution Head - Cased Backbone, 3 Epochs
+Prediction:
+```json
+{
+  "exact": 0.20813623462630085,
+  "f1": 4.923762351344137,
+  "total": 10570,
+  "HasAns_exact": 0.20813623462630085,
+  "HasAns_f1": 4.923762351344137,
+  "HasAns_total": 10570
+}
+```
+Bootstrap test:
+```json
+  "p_values": {
+    "exact_match": {
+      "p_value": 1.0,
+      "num_sig": 1000,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 1.0,
+      "num_sig": 1000,
       "total": 1000
     }
   }

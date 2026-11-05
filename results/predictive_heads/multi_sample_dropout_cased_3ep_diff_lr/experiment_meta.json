@@ -1,0 +1,13 @@
+{
+  "experiment_name": "multi_sample_dropout_cased_3ep_diff_lr",
+  "job_id": "1076627",
+  "checkpoint_dir": "checkpoints/1076627",
+  "model_name_or_path": "bert-base-cased",
+  "predictive_head": "multi_sample_dropout_head",
+  "epochs": 3,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 0.00015,
+  "exact_match": 81.58,
+  "f1_score": 88.96,
+  "status": "Converged"
+}
