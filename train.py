@@ -7,11 +7,12 @@ from predictive_heads import PREDICTIVE_HEADS
 from hidden_pooling import HIDDEN_POOLERS
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Fine-tune BERT for Question Answering on SQuAD")
+    parser = argparse.ArgumentParser(description="Fine-tune BERT / RoBERTa for Question Answering on SQuAD")
 
     # Model & Data paths
     parser.add_argument("--model_name_or_path", type=str, default="bert-base-uncased",
-                        help="Path to pretrained model or model identifier from huggingface.co/models")
+                        help="Path to pretrained model or model identifier from huggingface.co/models "
+                             "(BERT and RoBERTa backbones, e.g. bert-large-uncased, roberta-base, roberta-large).")
     parser.add_argument("--train_json_path", type=str, default="./data/train-v1.1.json",
                         help="Path to the training data JSON file.")
     parser.add_argument("--output_dir", type=str, default="./checkpoints/bert_squad_finetune",
@@ -98,8 +99,8 @@ def train(args):
     import torch
     from torch.optim import AdamW
     from torch.utils.data import DataLoader
-    from transformers import AutoConfig, BertTokenizerFast, get_linear_schedule_with_warmup
-    from bert import BertForQuestionAnswering
+    from transformers import AutoConfig, AutoTokenizer, get_linear_schedule_with_warmup
+    from bert import get_qa_model_class
     from dataset import parse_squad_json, SquadDataset
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
@@ -113,8 +114,11 @@ def train(args):
     config = AutoConfig.from_pretrained(args.model_name_or_path) 
     config.head_type = args.predictive_head
     config.pooler_type = args.pooler_type
-    tokenizer = BertTokenizerFast.from_pretrained(args.model_name_or_path)
-    model = BertForQuestionAnswering.from_pretrained(
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+    model = get_qa_model_class(config).from_pretrained(
+#     config.pooler_type = args.pooler_type
+#     tokenizer = BertTokenizerFast.from_pretrained(args.model_name_or_path)
+#     model = BertForQuestionAnswering.from_pretrained(
         args.model_name_or_path,
         config=config
     ).to(device)
@@ -137,7 +141,7 @@ def train(args):
     print(f"Learning rates -> Backbone: {args.learning_rate} | Head: {head_lr}")
 
     optimizer_grouped_parameters = [
-        {"params": [p for p in model.bert.parameters() if p.requires_grad], "lr": args.learning_rate},
+        {"params": [p for p in model.base_model.parameters() if p.requires_grad], "lr": args.learning_rate},
         {"params": [p for p in model.pred_head.parameters() if p.requires_grad], "lr": head_lr},
     ]
     optimizer = AdamW(optimizer_grouped_parameters, eps=args.adam_epsilon)

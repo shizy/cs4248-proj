@@ -53,6 +53,20 @@ sbatch train_eval.sh --batch_size 32
 ```
 
 
+# Using Other Backbones (BERT-large, RoBERTa)
+
+The backbone is chosen with `--model_name_or_path`. BERT and RoBERTa checkpoints are supported (e.g. `bert-base-uncased`, `bert-large-uncased`, `roberta-base`, `roberta-large`); the right model class is picked from the checkpoint's config (see `get_qa_model_class` in [`bert.py`](./bert.py)), and [`predict.py`](./predict.py) reads it back from the saved `config.json`, so no extra flag is needed there. Other architectures raise an "Unsupported backbone" error.
+
+Baseline (default linear head) runs of the larger backbones on the cluster. `sbatch` command-line options override the `#SBATCH` lines in the script, so give the large models a longer `--time`:
+```
+sbatch --time=04:00:00 --job-name=bert-large    train_eval.sh --model_name_or_path bert-large-uncased
+sbatch                 --job-name=roberta-base  train_eval.sh --model_name_or_path roberta-base
+sbatch --time=04:00:00 --job-name=roberta-large train_eval.sh --model_name_or_path roberta-large
+```
+Each job saves `checkpoints/<job_id>/eval_results.json` (EM / F1) next to `training_args.json` (records the backbone, head and hyperparameters used), and prints the metrics at the end of `output-<job_id>.out`. `checkpoints/` is git-ignored, so copy the numbers somewhere shared.
+
+Note: RoBERTa-large can diverge with a high learning rate. The loss starts near 5.9 (≈ ln 384, i.e. random guessing); if `Avg Loss` is still around 5-6 after the first few thousand steps, the run is not learning, so stop it and rerun with a lower rate, e.g. `--learning_rate 1.5e-5`.
+
 
 # Adding Custom Predictive Heads
 
@@ -163,8 +177,9 @@ Both outputs are automatically written directly into the folder of the tested mo
 | [`HEADS.md`](./HEADS.md) | Architectural documentation, mathematical formulations, and arXiv research papers for all predictive heads. |
 | [`predict.py`](./predict.py) | Inference script that evaluates fine-tuned checkpoints on validation passages to generate question-answering span predictions. |
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
+| [`bert.py`](./bert.py) | Custom PyTorch models (`BertForQuestionAnswering`, `RobertaForQuestionAnswering`, chosen via `get_qa_model_class`) that delegate span extraction to the selected predictive head. |
 | [`paired_bootstrap_test.py`](./paired_bootstrap_test.py) | Non-parametric paired bootstrap test comparing a candidate model against a baseline for EM & F1 statistical significance ($p$-values, $s/b$, and sample CSVs). |
-| [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. |
+<!-- | [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. | -->
 | [`dataset.py`](./dataset.py) | SQuAD dataset parser (`parse_squad_json`) and PyTorch `SquadDataset` handling tokenization and sliding window context chunking. |
 | [`predictive_heads/head.py`](./predictive_heads/head.py) | Abstract base class (`PredictiveHead`), `@register_head` decorator, and `get_pred_head` factory. |
 | [`predictive_heads/baseline.py`](./predictive_heads/baseline.py) | Baseline linear predictive head (`baseline_linear_head`). |

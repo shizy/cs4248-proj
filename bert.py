@@ -3,16 +3,20 @@ from predictive_heads.head import get_pred_head
 from hidden_pooling.pooler import get_hidden_pooler
 from transformers import (
     BertModel,
-    BertPreTrainedModel
+    BertPreTrainedModel,
+    RobertaModel,
+    RobertaPreTrainedModel
 )
 
-class BertForQuestionAnswering(BertPreTrainedModel):
-    def __init__(self, config):
-        super().__init__(config)
+class SpanQAMixin:
+    """Shared forward pass (backbone -> predictive head -> span loss) for all supported backbones."""
+# class BertForQuestionAnswering(BertPreTrainedModel):
+#     def __init__(self, config):
+#         super().__init__(config)
 
-        self.bert = BertModel(config, add_pooling_layer=False)
-        self.hidden_pooler = get_hidden_pooler(config)
-        self.pred_head = get_pred_head(config)
+#         self.bert = BertModel(config, add_pooling_layer=False)
+#         self.hidden_pooler = get_hidden_pooler(config)
+#         self.pred_head = get_pred_head(config)
 
     def forward(
         self, 
@@ -22,7 +26,8 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         start_positions=None, # index to the start of the "answer"
         end_positions=None # index to the end of the "answer"
     ):
-        outputs = self.bert(
+        # base_model resolves to self.bert / self.roberta depending on the backbone
+        outputs = self.base_model(
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
@@ -54,3 +59,33 @@ class BertForQuestionAnswering(BertPreTrainedModel):
             "start_logits": start_logits,
             "end_logits": end_logits
         }
+
+
+class BertForQuestionAnswering(SpanQAMixin, BertPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.bert = BertModel(config, add_pooling_layer=False)
+        self.pred_head = get_pred_head(config)
+
+
+class RobertaForQuestionAnswering(SpanQAMixin, RobertaPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.roberta = RobertaModel(config, add_pooling_layer=False)
+        self.pred_head = get_pred_head(config)
+
+
+QA_MODEL_CLASSES = {
+    "bert": BertForQuestionAnswering,
+    "roberta": RobertaForQuestionAnswering,
+}
+
+def get_qa_model_class(config):
+    """Pick the QA model class matching the backbone's config (e.g. bert-large-uncased, roberta-large)."""
+    if config.model_type not in QA_MODEL_CLASSES:
+        raise ValueError(
+            f"Unsupported backbone model_type '{config.model_type}'. Supported: {sorted(QA_MODEL_CLASSES)}"
+        )
+    return QA_MODEL_CLASSES[config.model_type]
