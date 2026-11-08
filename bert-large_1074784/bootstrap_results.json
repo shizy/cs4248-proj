@@ -1,0 +1,38 @@
+{
+  "bootstrap_config": {
+    "test_predictions_file": "predictions.json",
+    "reference_predictions_file": "predictions.json",
+    "test_predictions_path": "bert-large_1074784/predictions.json",
+    "reference_predictions_path": "results/predictive_heads/baseline_linear/predictions.json",
+    "dataset_size": 10570,
+    "sample_size": 10570,
+    "num_samples": 1000,
+    "seed": 42
+  },
+  "observed_metrics": {
+    "test_model": {
+      "exact_match": 84.1627,
+      "f1_score": 90.858
+    },
+    "reference_model": {
+      "exact_match": 81.1637,
+      "f1_score": 88.5805
+    },
+    "observed_difference": {
+      "delta_exact_match": 2.9991,
+      "delta_f1_score": 2.2775
+    }
+  },
+  "p_values": {
+    "exact_match": {
+      "p_value": 0.0,
+      "num_sig": 0,
+      "total": 1000
+    },
+    "f1_score": {
+      "p_value": 0.0,
+      "num_sig": 0,
+      "total": 1000
+    }
+  }
+}
