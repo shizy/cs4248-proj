@@ -1,0 +1,13 @@
+{
+  "experiment_name": "conv_boundary_uniform_lr",
+  "job_id": "983157",
+  "checkpoint_dir": "checkpoints/983157",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "conv_boundary_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 3e-05,
+  "exact_match": 0.66,
+  "f1_score": 1.92,
+  "status": "Collapsed"
+}

@@ -5,6 +5,9 @@
   - Run `python train.py --help` to see the list of configurable params.
 - Run [`predict.py`](./predict.py), ensuring that `--model_path` and `--val_json_path` are correct. This goes over the dev dataset and generates QA spans for each example with our fine-tuned model, along with the respective question ID, as a JSON file. This file is used by [`evaluate-v2.0.py`](./evaluate-v2.0.py) for evals.
 - Run [`evaluate-v2.0.py`](./evaluate-v2.0.py), with the dev dataset path and predictions JSON path. This prints out the evaluation metric scores.
+- Run [`paired_bootstrap_test.py`](./paired_bootstrap_test.py) to test statistical significance (EM & F1) between a test model checkpoint and a reference baseline model. Results (`bootstrap_results.csv` and `bootstrap_results.json`) are automatically saved into the tested model's directory.
+
+
 
 # SoC Compute Cluster Guide
 Due to the amount of data points, it is ideal to use the SoC Compute Cluster to run both training ([`train.py`](./train.py)) and inference ([`predict.py`](./predict.py))
@@ -104,6 +107,68 @@ or in your SLURM submission:
 sbatch train_eval.sh --predictive_head mlp_head
 ```
 
+# Running Paired Bootstrap Significance Testing
+
+To verify whether a model's performance improvements over a reference baseline are statistically significant, use [`paired_bootstrap_test.py`](./paired_bootstrap_test.py).
+
+### Hypothesis & Methodology
+
+Following non-parametric paired bootstrap testing:
+- $H_0: \delta(x) \le 0$ (Candidate Model $A$ is not better than Baseline Model $B$)
+- $H_1: \delta(x) > 0$ (Candidate Model $A$ is better than Baseline Model $B$)
+
+For each bootstrap iteration $i = 1 \dots b$ ($b = 1000$ by default):
+1. Create a bootstrap test set $x_i$ of the same size as $x$ by sampling from $x$ with replacement.
+2. Compute metric difference $\delta(x_i) = M(A, x_i) - M(B, x_i)$ for both Exact Match (EM) and F1.
+3. Increment counter $s \leftarrow s + 1$ if $\delta(x_i) \le 0$.
+4. Compute empirical $p\text{-value} = \frac{s}{b}$. If $p < 0.01$ (or $0.05$), reject $H_0$ and conclude Model $A$ is significantly better than Model $B$.
+
+### CLI Usage
+
+```bash
+python paired_bootstrap_test.py \
+    --test_pred_path results/predictive_heads/conditioned_span_cased_3ep_diff_lr/predictions.json \
+    --ref_pred_path results/predictive_heads/baseline_linear/predictions.json \
+    --num_samples 1000 \
+    --seed 42
+```
+
+> **Note**: Both `--test_pred_path` and `--ref_pred_path` can point either directly to `predictions.json` or to the experiment directory containing it. `--data_path` is optional and automatically resolves to `data/dev-v1.1.json`.
+
+Available arguments:
+- `--test_pred_path`, `-t`: Path to predictions JSON (or folder) of the model being tested (**required**).
+- `--ref_pred_path`, `-r`: Path to predictions JSON (or folder) of the reference baseline model (**required**).
+- `--num_samples`, `-n`: Total number of bootstrap sample draws (default: `1000`).
+- `--data_path`, `-d`: Path to gold SQuAD evaluation JSON (default: `data/dev-v1.1.json`).
+- `--sample_size`, `-s`: Number of questions per draw (default: test set size, 10,570).
+- `--seed`: Random seed for sampling reproducibility (default: `42`). Set to `-1` for random.
+- `--quiet`, `-q`: Suppress console logging.
+
+### Programmatic Python Usage
+
+```python
+from paired_bootstrap_test import paired_bootstrap_test
+
+results = paired_bootstrap_test(
+    test_pred_path="results/predictive_heads/conditioned_span_cased_3ep_diff_lr/predictions.json",
+    ref_pred_path="results/predictive_heads/baseline_linear/predictions.json",
+    num_samples=1000,
+    seed=42,
+)
+
+print("Exact Match:", results["p_values"]["exact_match"])
+# {'p_value': 0.19, 'num_sig': 190, 'total': 1000}
+
+print("F1 Score:", results["p_values"]["f1_score"])
+# {'p_value': 0.102, 'num_sig': 102, 'total': 1000}
+```
+
+### Outputs
+
+Both outputs are automatically written directly into the folder of the tested model:
+- `bootstrap_results.csv`: Contains per-draw metrics (`sample_id,model_em,model_f1,ref_em,ref_f1,diff_em,diff_f1`).
+- `bootstrap_results.json`: Summary JSON containing `bootstrap_config`, `observed_metrics`, and `p_values` (`num_sig` / `total`).
+
 # File Reference
 
 | File | Description |
@@ -113,6 +178,8 @@ sbatch train_eval.sh --predictive_head mlp_head
 | [`predict.py`](./predict.py) | Inference script that evaluates fine-tuned checkpoints on validation passages to generate question-answering span predictions. |
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
 | [`bert.py`](./bert.py) | Custom PyTorch models (`BertForQuestionAnswering`, `RobertaForQuestionAnswering`, chosen via `get_qa_model_class`) that delegate span extraction to the selected predictive head. |
+| [`paired_bootstrap_test.py`](./paired_bootstrap_test.py) | Non-parametric paired bootstrap test comparing a candidate model against a baseline for EM & F1 statistical significance ($p$-values, $s/b$, and sample CSVs). |
+<!-- | [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. | -->
 | [`dataset.py`](./dataset.py) | SQuAD dataset parser (`parse_squad_json`) and PyTorch `SquadDataset` handling tokenization and sliding window context chunking. |
 | [`predictive_heads/head.py`](./predictive_heads/head.py) | Abstract base class (`PredictiveHead`), `@register_head` decorator, and `get_pred_head` factory. |
 | [`predictive_heads/baseline.py`](./predictive_heads/baseline.py) | Baseline linear predictive head (`baseline_linear_head`). |
@@ -127,6 +194,8 @@ sbatch train_eval.sh --predictive_head mlp_head
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
 | [`explore_data.py`](./explore_data.py) | Utility script to inspect the nested structure of SQuAD JSON datasets. |
 | [`requirements.txt`](./requirements.txt) | Environment package dependencies and library versions. |
+| [`results/predictive_heads/`](./results/predictive_heads/README.md) | Various results for predictive head experiments. |
+
 
 # Todos
 1. Add argparse into the train script to allow for hyperparameter/arch changes via the command line (done for training hyperparams)

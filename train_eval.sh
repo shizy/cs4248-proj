@@ -5,7 +5,7 @@
 #SBATCH --time=02:30:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --gpus=h100-96
 
 #SBATCH --mail-type=BEGIN,END,FAIL

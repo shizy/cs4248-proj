@@ -1,0 +1,13 @@
+{
+  "experiment_name": "baseline_linear_cased_3ep",
+  "job_id": "1076621",
+  "checkpoint_dir": "checkpoints/1076621",
+  "model_name_or_path": "bert-base-cased",
+  "predictive_head": "baseline_linear_head",
+  "epochs": 3,
+  "learning_rate": 3e-05,
+  "head_learning_rate": null,
+  "exact_match": 81.31,
+  "f1_score": 88.74,
+  "status": "Converged"
+}

@@ -1,0 +1,13 @@
+{
+  "experiment_name": "residual_mlp_cased_3ep_diff_lr",
+  "job_id": "1076628",
+  "checkpoint_dir": "checkpoints/1076628",
+  "model_name_or_path": "bert-base-cased",
+  "predictive_head": "residual_mlp_head",
+  "epochs": 3,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 0.0001,
+  "exact_match": 80.93,
+  "f1_score": 88.69,
+  "status": "Converged"
+}

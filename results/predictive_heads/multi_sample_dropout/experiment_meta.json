@@ -1,0 +1,13 @@
+{
+  "experiment_name": "multi_sample_dropout",
+  "job_id": "983152",
+  "checkpoint_dir": "checkpoints/983152",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "multi_sample_dropout_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 3e-05,
+  "exact_match": 81.34,
+  "f1_score": 88.54,
+  "status": "Converged"
+}

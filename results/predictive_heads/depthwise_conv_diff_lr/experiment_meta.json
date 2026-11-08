@@ -1,0 +1,13 @@
+{
+  "experiment_name": "depthwise_conv_diff_lr",
+  "job_id": "990999",
+  "checkpoint_dir": "checkpoints/990999",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "depthwise_conv_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 0.00015,
+  "exact_match": 0.66,
+  "f1_score": 1.92,
+  "status": "Collapsed"
+}

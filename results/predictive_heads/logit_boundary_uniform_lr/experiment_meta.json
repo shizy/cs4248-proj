@@ -1,0 +1,13 @@
+{
+  "experiment_name": "logit_boundary_uniform_lr",
+  "job_id": "1076626",
+  "checkpoint_dir": "checkpoints/1076626",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "logit_boundary_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": null,
+  "exact_match": 81.14,
+  "f1_score": 88.52,
+  "status": "Converged"
+}

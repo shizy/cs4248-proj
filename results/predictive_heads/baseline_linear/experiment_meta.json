@@ -1,0 +1,13 @@
+{
+  "experiment_name": "baseline_linear",
+  "job_id": "944574",
+  "checkpoint_dir": "checkpoints/944574",
+  "model_name_or_path": "bert-base-uncased",
+  "predictive_head": "baseline_linear_head",
+  "epochs": 2,
+  "learning_rate": 3e-05,
+  "head_learning_rate": 3e-05,
+  "exact_match": 81.16,
+  "f1_score": 88.58,
+  "status": "Converged"
+}
