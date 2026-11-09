@@ -66,6 +66,7 @@ class BertForQuestionAnswering(SpanQAMixin, BertPreTrainedModel):
         super().__init__(config)
 
         self.bert = BertModel(config, add_pooling_layer=False)
+        self.hidden_pooler = get_hidden_pooler(config)
         self.pred_head = get_pred_head(config)
 
 
@@ -74,6 +75,7 @@ class RobertaForQuestionAnswering(SpanQAMixin, RobertaPreTrainedModel):
         super().__init__(config)
 
         self.roberta = RobertaModel(config, add_pooling_layer=False)
+        self.hidden_pooler = get_hidden_pooler(config)
         self.pred_head = get_pred_head(config)
 
 

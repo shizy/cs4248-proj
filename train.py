@@ -33,6 +33,8 @@ def parse_args():
     # Training dynamics
     parser.add_argument("-e", "--epochs", type=int, default=2,
                         help="Total number of training epochs to perform.")
+    parser.add_argument("--max_train_rows", type=int, default=None,
+                        help="Maximum training examples before tokenization, default uses all")
     parser.add_argument("-b", "--batch_size", type=int, default=12,
                         help="Batch size per device for training.")
     parser.add_argument("-lr", "--learning_rate", type=float, default=3e-5,
@@ -131,7 +133,8 @@ def train(args):
         tokenizer,
         max_length=args.max_seq_len,
         doc_stride=args.doc_stride,
-        is_train=True
+        is_train=True,
+        max_train_rows=args.max_train_rows
     )
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 

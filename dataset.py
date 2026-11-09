@@ -1,6 +1,7 @@
 import json
 from torch.utils.data import Dataset
 import torch
+import random
 
 # Tokenization + Alignment
 def parse_squad_json(filepath):
@@ -34,25 +35,79 @@ class SquadDataset(Dataset):
         max_length=384,
         doc_stride=128,
         is_train=True,
+        max_train_rows=None,
+        sample_seed=42
     ):
         self.is_train = is_train
         self.features = []
 
-        questions = [row["question"] for row in data_rows]
-        contexts = [row["context"] for row in data_rows]
+        if is_train and max_train_rows is not None:
+            if max_train_rows <= 0:
+                raise ValueError("max_train_rows must be positive")
 
-        tokenized = tokenizer(
-            questions,
-            contexts,
-            truncation="only_second",
-            max_length=max_length,
-            stride=doc_stride,
-            return_overflowing_tokens=True,
-            return_offsets_mapping=True,
-            return_token_type_ids=True, # RoBERTa's tokenizer omits these by default; they are all zeros there
-            padding="max_length",
-            return_tensors="pt",
+            if len(data_rows) > max_train_rows:
+                data_rows = random.Random(sample_seed).sample(
+                    data_rows, max_train_rows
+                )
+
+        print(f"Tokenizing {len(data_rows):,} examples", flush=True)
+        print(f"tokenizer={tokenizer.name_or_path}, "
+            f"max_length={max_length}, doc_stride={doc_stride}",
+            flush=True,
         )
+
+        questions = [" ".join(row["question"].split()) for row in data_rows]
+        contexts = [row["context"] for row in data_rows]
+        
+        try:
+            tokenized = tokenizer(
+                questions,
+                contexts,
+                truncation="only_second",
+                max_length=max_length,
+                stride=doc_stride,
+                return_overflowing_tokens=True,
+                return_offsets_mapping=True,
+                return_token_type_ids=True, # RoBERTa's tokenizer omits these by default; they are all zeros there
+                padding="max_length",
+                return_tensors="pt",
+            )
+        except:
+            for row in data_rows:
+                try:
+                    tokenizer(
+                        row["question"],
+                        row["context"],
+                        truncation="only_second",
+                        max_length=max_length,
+                        stride=doc_stride,
+                        return_overflowing_tokens=True,
+                        return_offsets_mapping=True,
+                        return_token_type_ids=True,
+                        padding="max_length",
+                        return_tensors="pt"
+                    )
+                # Debugging Stuff... 
+                except Exception as exc:
+                    question_length = len(tokenizer(
+                        row["question"],
+                        add_special_tokens=False,
+                        truncation=False,
+                    )["input_ids"])
+
+                    special_tokens = tokenizer.num_special_tokens_to_add(
+                        pair=True
+                    )
+
+                    raise RuntimeError(
+                        f"Failed example: {row['id']}\n"
+                        f"Question tokens: {question_length}\n"
+                        f"Context budget: "
+                        f"{max_length - question_length - special_tokens}\n"
+                        f"max_length={max_length}, stride={doc_stride}\n"
+                        f"Question: {row['question']!r}"
+                    ) from exc
+            raise
 
         sample_mapping = tokenized.pop("overflow_to_sample_mapping")
         offset_mapping = tokenized.pop("offset_mapping")
