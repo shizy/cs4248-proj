@@ -107,9 +107,34 @@ or in your SLURM submission:
 sbatch train_eval.sh --predictive_head mlp_head
 ```
 
+# Adding Custom Pooling Methods
+
+Similar to the predictive heads, the codebase contains a modular registry with auto-discovery for hidden state pooling, located in the [`hidden_pooling/`](./hidden_pooling/) directory. 
+
+### How It Works
+
+1. Any Python file placed inside [`hidden_pooling/`](./hidden_pooling/) is automatically imported by [`hidden_pooling/__init__.py`](./hidden_pooling/__init__.py).
+2. The `@register_pooler("<name>")` decorator registers the class into the `HIDDEN_POOLERS` registry.
+3. The registered pooler is immediately exposed in [`train.py`](./train.py) under the `--pooler_type` CLI argument and validated in choices.
+4. When saved via `model.save_pretrained()`, the chosen pooler type is stored inside `config.json` (`config.head_type`), so [`predict.py`](./predict.py) loads the correct pooler automatically during inference without manual flags.
+
+### Running Training with custom poolers
+
+Train using a custom pooler with the CLI flag:
+```bash
+python train.py --pooler_type mean
+```
+or in your SLURM submission:
+```bash
+sbatch train_eval.sh --pooler_type mean
+```
+
+Note that wthout specifying `--pooler_type`, the training script defaults to last layer pooling.
+
 # Running Paired Bootstrap Significance Testing
 
 To verify whether a model's performance improvements over a reference baseline are statistically significant, use [`paired_bootstrap_test.py`](./paired_bootstrap_test.py).
+
 
 ### Hypothesis & Methodology
 
