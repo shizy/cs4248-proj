@@ -204,7 +204,6 @@ Both outputs are automatically written directly into the folder of the tested mo
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
 | [`bert.py`](./bert.py) | Custom PyTorch models (`BertForQuestionAnswering`, `RobertaForQuestionAnswering`, chosen via `get_qa_model_class`) that delegate span extraction to the selected predictive head. |
 | [`paired_bootstrap_test.py`](./paired_bootstrap_test.py) | Non-parametric paired bootstrap test comparing a candidate model against a baseline for EM & F1 statistical significance ($p$-values, $s/b$, and sample CSVs). |
-<!-- | [`bert.py`](./bert.py) | Custom PyTorch model implementation (`BertForQuestionAnswering`) that delegates span extraction to the selected predictive head. | -->
 | [`dataset.py`](./dataset.py) | SQuAD dataset parser (`parse_squad_json`) and PyTorch `SquadDataset` handling tokenization and sliding window context chunking. |
 | [`predictive_heads/head.py`](./predictive_heads/head.py) | Abstract base class (`PredictiveHead`), `@register_head` decorator, and `get_pred_head` factory. |
 | [`predictive_heads/baseline.py`](./predictive_heads/baseline.py) | Baseline linear predictive head (`baseline_linear_head`). |
@@ -221,9 +220,3 @@ Both outputs are automatically written directly into the folder of the tested mo
 | [`requirements.txt`](./requirements.txt) | Environment package dependencies and library versions. |
 | [`results/predictive_heads/`](./results/predictive_heads/README.md) | Various results for predictive head experiments. |
 
-
-# Todos
-1. Add argparse into the train script to allow for hyperparameter/arch changes via the command line (done for training hyperparams)
-2. Abstract out the linear layer in the model to make it extensible. Make it modifiable in the training args (done via --predictive_head and predictive_heads/)
-4. Support more interesting LR scheduling algorithms. Abstract that out to be modifable in the training args (not really important)
-5. Support more interesting losses. Abstract that out to be modifiable in the training args
