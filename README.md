@@ -70,7 +70,7 @@ Note: RoBERTa-large can diverge with a high learning rate. The loss starts near 
 
 # Adding Custom Predictive Heads
 
-The codebase uses a modular registry with auto-discovery located in the [`predictive_heads/`](./predictive_heads/) directory. For an architectural breakdown, mathematical formulations, and research papers, see [**`HEADS.md`**](./HEADS.md).
+The codebase uses a modular registry with auto-discovery located in the [`predictive_heads/`](./predictive_heads/) directory.
 
 ### How It Works
 1. Any Python file placed inside [`predictive_heads/`](./predictive_heads/) is automatically imported by [`predictive_heads/__init__.py`](./predictive_heads/__init__.py).
@@ -199,7 +199,6 @@ Both outputs are automatically written directly into the folder of the tested mo
 | File | Description |
 | :--- | :--- |
 | [`train.py`](./train.py) | Main fine-tuning script with CLI argument parsing via `argparse`, linear LR warmup scheduling, and checkpoint saving. |
-| [`HEADS.md`](./HEADS.md) | Architectural documentation, mathematical formulations, and arXiv research papers for all predictive heads. |
 | [`predict.py`](./predict.py) | Inference script that evaluates fine-tuned checkpoints on validation passages to generate question-answering span predictions. |
 | [`evaluate-v2.0.py`](./evaluate-v2.0.py) | Official SQuAD evaluation script computing Exact Match (EM) and F1 metric scores against ground truth answers. |
 | [`bert.py`](./bert.py) | Custom PyTorch models (`BertForQuestionAnswering`, `RobertaForQuestionAnswering`, chosen via `get_qa_model_class`) that delegate span extraction to the selected predictive head. |
