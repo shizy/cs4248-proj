@@ -217,5 +217,5 @@ Both outputs are automatically written directly into the folder of the tested mo
 | [`train.sh`](./train.sh) | Base SLURM batch script for running training. |
 | [`explore_data.py`](./explore_data.py) | Utility script to inspect the nested structure of SQuAD JSON datasets. |
 | [`requirements.txt`](./requirements.txt) | Environment package dependencies and library versions. |
-| [`results/predictive_heads/`](./results/predictive_heads/README.md) | Various results for predictive head experiments. |
+| [`results/`](./results/README.md) | Results folder for various experiments conducted for the project |
 
